@@ -1,7 +1,7 @@
 # DDPM config used for DDPM training
 ddpm:
   data:
-    root: ???   # Dataset root
+    root: "data/"   # Dataset root
     name: "cifar10"   # Dataset name (check main/util.py `get_dataset` for a registry)
     image_size: 32   # Image resolution
     hflip: True   # Whether to use horizontal flip
@@ -30,24 +30,24 @@ ddpm:
     batch_size: 32   # Training batch size (per GPU, per TPU core if using distributed training)
     epochs: 5000   # Max number of epochs
     log_step: 1   # log interval
-    device: "gpu:0"   # Device. Uses TPU/CPU if set to `tpu` or `cpu`. For GPU, use gpu:<comma separated id list>. Ex: gpu:0,1 would run only on gpus 0 and 1 
+    device: "gpu:0"   # Device. Uses TPU/CPU if set to `tpu` or `cpu`. For GPU, use gpu:<comma separated id list>. Ex: gpu:0,1 would run only on gpus 0 and 1
     chkpt_interval: 1   # Number of epochs between two checkpoints
     optimizer: "Adam"   # Optimizer
     lr: 2e-4   # Learning rate
     restore_path: ""   # Checkpoint restore path
-    vae_chkpt_path: ???   # VAE checkpoint path. Useful when using form1 or form2
-    results_dir: ???   # Directory to store the checkpoint in
+    vae_chkpt_path: 'vae'   # VAE checkpoint path. Useful when using form1 or form2
+    results_dir: 'results/'   # Directory to store the checkpoint in
     workers: 2   # Num workers
     grad_clip: 1.0   # gradient clipping threshold
     n_anneal_steps: 5000   # number of warmup steps
     loss: "l2"   # Diffusion loss type. Among ['l2', 'l1']
-    chkpt_prefix: ""   # prefix appended to the checkpoint name
+    chkpt_prefix: "vae"   # prefix appended to the checkpoint name
     cfd_rate: 0.0   # Conditioning signal dropout rate as in Classifier-free guidance
 
 # VAE config used for VAE training
 vae:
   data:
-    root: ???
+    root: 'data/'
     name: "cifar10"
     image_size: 32
     n_channels: 3
@@ -70,7 +70,7 @@ vae:
     optimizer: "Adam"
     lr: 1e-4
     restore_path: ""
-    results_dir: ???
+    results_dir: "results/"
     workers: 2
-    chkpt_prefix: ""
+    chkpt_prefix: "vae"
     alpha: 1.0   # The beta value in beta-vae. I know the param name might be misleading :(

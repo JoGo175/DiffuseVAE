@@ -1,7 +1,8 @@
 import logging
 import os
+import yaml
 
-import hydra
+#import hydra
 import pytorch_lightning as pl
 import torchvision.transforms as T
 from omegaconf import OmegaConf
@@ -15,11 +16,19 @@ from util import configure_device, get_dataset
 
 logger = logging.getLogger(__name__)
 
+def load_config(config_path):
+    with open(config_path, "r") as f:
+        config_dict = yaml.safe_load(f)
+    config = OmegaConf.create(config_dict)
+    return config
 
-@hydra.main(config_path="configs")
-def train(config):
+#@hydra.main(config_path="configs")
+def train(config_path):
+    # import config yaml
+    config = load_config(config_path)
+
     # Get config and setup
-    config = config.dataset.vae
+    config = config.vae
     logger.info(OmegaConf.to_yaml(config))
 
     # Set seed
@@ -101,4 +110,5 @@ def train(config):
 
 
 if __name__ == "__main__":
-    train()
+    config_path = "configs/dataset/cifar10/train.yaml"
+    train(config_path)
