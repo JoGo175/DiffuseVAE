@@ -1,8 +1,8 @@
 import copy
 import logging
 import os
+import yaml
 
-import hydra
 import pytorch_lightning as pl
 from omegaconf import OmegaConf
 from pytorch_lightning.callbacks import ModelCheckpoint
@@ -22,10 +22,17 @@ def __parse_str(s):
     return [int(s) for s in split if s != "" and s is not None]
 
 
-@hydra.main(config_path="configs")
-def train(config):
+def load_config(config_path):
+    with open(config_path, "r") as f:
+        config_dict = yaml.safe_load(f)
+    config = OmegaConf.create(config_dict)
+    return config
+
+
+def train(config_path):
     # Get config and setup
-    config = config.dataset.ddpm
+    config = load_config(config_path)
+    config = config.ddpm
     logger.info(OmegaConf.to_yaml(config))
 
     # Set seed
@@ -141,9 +148,11 @@ def train(config):
         train_kwargs["gpus"] = devs
 
         # Disable find_unused_parameters when using DDP training for performance reasons
-        from pytorch_lightning.plugins import DDPPlugin, DDPSpawnPlugin
+        #from pytorch_lightning.plugins import DDPPlugin, DDPSpawnPlugin
+        from pytorch_lightning.strategies.ddp import DDPStrategy
 
-        train_kwargs["plugins"] = DDPPlugin(find_unused_parameters=False)
+        #train_kwargs["plugins"] = DDPPlugin(find_unused_parameters=False)
+        train_kwargs["strategy"] = DDPStrategy(find_unused_parameters=False)
         loader_kws["persistent_workers"] = True
     elif device == "tpu":
         train_kwargs["tpu_cores"] = 8
@@ -168,8 +177,9 @@ def train(config):
 
     logger.info(f"Running Trainer with kwargs: {train_kwargs}")
     trainer = pl.Trainer(**train_kwargs)
-    trainer.fit(ddpm_wrapper, train_dataloader=loader)
+    trainer.fit(ddpm_wrapper, train_dataloaders=loader)
 
 
 if __name__ == "__main__":
-    train()
+    config_path = "configs/dataset/cifar10/train.yaml"
+    train(config_path)

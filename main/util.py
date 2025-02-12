@@ -30,6 +30,7 @@ def configure_device(device):
             gpu_id = -1
         gpu_id = [int(id) for id in gpu_id.split(",")]
         return f"cuda:{gpu_id}", gpu_id
+
     return device
 
 

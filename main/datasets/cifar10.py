@@ -5,6 +5,8 @@ import torch
 from torch.utils.data import Dataset
 from torchvision.datasets import CIFAR10
 
+np.float = float
+np.int = int
 
 class CIFAR10Dataset(Dataset):
     def __init__(self, root, norm=True, transform=None, subsample_size=None, **kwargs):

@@ -326,21 +326,33 @@ def calculate_fid_given_paths(
 
 
 def main():
-    args = parser.parse_args()
+    # args = parser.parse_args()
+    #
+    # if args.device is None:
+    #     device = torch.device("cuda" if (torch.cuda.is_available()) else "cpu")
+    # else:
+    #     device = torch.device(args.device)
 
-    if args.device is None:
-        device = torch.device("cuda" if (torch.cuda.is_available()) else "cpu")
-    else:
-        device = torch.device(args.device)
+    device = torch.device("mps")
 
+    # fid_value = calculate_fid_given_paths(
+    #     args.path,
+    #     args.batch_size,
+    #     device,
+    #     args.dims,
+    #     args.num_workers,
+    #     args.mode1,
+    #     args.mode2,
+    # )
     fid_value = calculate_fid_given_paths(
-        args.path,
-        args.batch_size,
+        ["/Users/jorgegoncalves/Desktop/Repositories/Master_Thesis/treevae/FID/fid_stats_precomputed/fid_stats_cifar10_test.npz",
+         "/Users/jorgegoncalves/Desktop/Repositories/Master_Thesis/DiffuseVAE/main/eval/ddpm/results/cifar10/100/images"],
+        128,
         device,
-        args.dims,
-        args.num_workers,
-        args.mode1,
-        args.mode2,
+        2048,
+        1,
+        "np",
+        "img",
     )
     print("FID: ", fid_value)
 

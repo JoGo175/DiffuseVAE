@@ -2,6 +2,8 @@
 # Add project directory to sys.path
 import os
 import sys
+import yaml
+import argparse
 
 p = os.path.join(os.path.abspath("."), "main")
 sys.path.insert(1, p)
@@ -18,6 +20,19 @@ from models.vae import VAE
 from pytorch_lightning.utilities.seed import seed_everything
 from torch.utils.data import DataLoader
 from util import configure_device
+from omegaconf import OmegaConf
+
+
+###############################################################################################################
+# SELECT THE DATASET
+dataset_name = "cifar10"       # mnist, fmnist, cifar10, celeba, cubicc is supported
+###############################################################################################################
+
+def load_config(config_path):
+    with open(config_path, "r") as f:
+        config_dict = yaml.safe_load(f)
+    config = OmegaConf.create(config_dict)
+    return config
 
 
 def __parse_str(s):
@@ -25,11 +40,31 @@ def __parse_str(s):
     return [int(s) for s in split if s != "" and s is not None]
 
 
-@hydra.main(config_path=os.path.join(p, "configs"))
-def sample_cond(config):
+#@hydra.main(config_path=os.path.join(p, "configs"))
+# @hydra.main(config_path="/Users/jorgegoncalves/Desktop/Repositories/Master_Thesis/DiffuseVAE/main/configs/dataset/celeba64/train.yaml")
+def sample_cond():
+    # Get config and setup
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config_name', default=f'{dataset_name}', type=str,
+                        choices=['mnist', 'fmnist', 'news20', 'omniglot', 'cifar10', 'cifar100', 'celeba', 'cubicc'],
+                        help='the override file name for config.yml')
+    parser.add_argument('--seed', default=42, type=int, help='random seed')
+
+    args = parser.parse_args()
+
+    if args.config_name == 'celeba':
+        config_path = f"../../configs/dataset/celeba64/test.yaml"
+    else:
+        config_path = f"../../configs/dataset/{args.config_name}/test.yaml"
+
+    print(torch.backends.mps.is_available())
+    print(torch.backends.mps.is_built())
+
+    # import config yaml
+    config = load_config(config_path)
     # Seed and setup
-    config_ddpm = config.dataset.ddpm
-    config_vae = config.dataset.vae
+    config_ddpm = config.ddpm
+    config_vae = config.vae
     seed_everything(config_ddpm.evaluation.seed, workers=True)
 
     batch_size = config_ddpm.evaluation.batch_size
@@ -117,14 +152,14 @@ def sample_cond(config):
     test_kwargs = {}
     loader_kws = {}
     device = config_ddpm.evaluation.device
-    if device.startswith("gpu"):
-        _, devs = configure_device(device)
-        test_kwargs["gpus"] = devs
-
-        # Disable find_unused_parameters when using DDP training for performance reasons
-        loader_kws["persistent_workers"] = True
-    elif device == "tpu":
-        test_kwargs["tpu_cores"] = 8
+    # if device.startswith("gpu"):
+    #     _, devs = configure_device(device)
+    #     test_kwargs["gpus"] = devs
+    #
+    #     # Disable find_unused_parameters when using DDP training for performance reasons
+    #     loader_kws["persistent_workers"] = True
+    # elif device == "tpu":
+    #     test_kwargs["tpu_cores"] = 8
 
     # Predict loader
     val_loader = DataLoader(

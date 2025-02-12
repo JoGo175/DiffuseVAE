@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torchvision.transforms as T
-from pytorch_lightning.utilities.seed import seed_everything
+# from pytorch_lightning.utilities.seed import seed_everything
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 

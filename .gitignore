@@ -130,3 +130,7 @@ dmypy.json
 .pyre/
 outputs/
 /main/data/
+
+/main/results/
+/pretrained_models/
+/main/eval/ddpm/results/

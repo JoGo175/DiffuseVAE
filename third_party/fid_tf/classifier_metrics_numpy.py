@@ -6,6 +6,9 @@ Direct NumPy port of tfgan.eval.classifier_metrics
 import numpy as np
 import scipy.special
 
+np.float = float
+np.int = int
+
 
 def log_softmax(x, axis):
     return x - scipy.special.logsumexp(x, axis=axis, keepdims=True)
